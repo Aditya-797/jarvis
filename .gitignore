@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Database & Telemetry
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# Memories & Personal Profile (Protects user privacy)
+memory/*.json
+
+# Audio & Temporary Media
+*.wav
+*.m4a
+*.tmp
+*.jpg
+
+# Large Models & Binaries (Over 100MB cannot be pushed to GitHub)
+*.gguf
+models/
+
+# Secrets (Prevents accidental key leaks if using .env or private config)
+.env

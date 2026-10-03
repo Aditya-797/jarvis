@@ -1,0 +1,25 @@
+{
+  "name": "jarvis-agent",
+  "version": "1.0.0",
+  "description": "JARVIS 24/7 Edge-Cloud Hybrid Voice Intelligence & Home Controller",
+  "main": "main.py",
+  "scripts": {
+    "start": "python daemon.py",
+    "dev": "python main.py",
+    "quickstart": "python quickstart.py",
+    "verify": "python verify.py",
+    "verify:audio": "python verify.py audio",
+    "verify:brain": "python verify.py brain",
+    "verify:esp32": "python verify.py esp32",
+    "verify:pc": "python verify.py pc"
+  },
+  "keywords": [
+    "jarvis",
+    "ai-agent",
+    "voice-assistant",
+    "termux",
+    "gemini"
+  ],
+  "author": "",
+  "license": "MIT"
+}

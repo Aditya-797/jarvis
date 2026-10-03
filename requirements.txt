@@ -1,0 +1,5 @@
+# Jarvis Dependencies
+google-genai>=0.1.1
+requests>=2.31.0
+pyyaml>=6.0.1
+websockets>=12.0

@@ -1,0 +1,49 @@
+# ==========================================
+# JARVIS AI AGENT CONFIGURATION (TEMPLATE)
+# ==========================================
+
+system:
+  name: "Jarvis"
+  persona: "british_jarvis"      # Authentic Paul Bettany British wit & loyalty
+  user_title: "sir"             # Default gentlemanly address
+  speech_rate: 1.2              # Refined, articulate British cadence
+  hotword_duration: 5           # Seconds to record per listen loop
+  wake_lock: true               # Keep CPU awake in Termux
+  tts_language: "en_GB"         # British English locale
+
+api_keys:
+  gemini_api_key: ""            # Get free from: https://aistudio.google.com
+  grok_api_key: ""              # Get from: https://console.x.ai (optional fallback)
+
+capabilities:
+  bilingual_input: true         # Fluent Hindi & English comprehension with British English output
+  google_search_grounding: true # Live real-time web search (weather, news, sports, crypto)
+  phone_automation: true        # Flashlight, battery, apps, calls, volume, brightness
+  pc_control: true              # Browser, YouTube, computer lock, volume
+  smart_home_iot: true          # ESP32 relays, lights, sensors
+
+intelligence:
+  primary: "gemini"             # gemini | grok | local
+  fallback_order:
+    - "gemini"
+    - "grok"
+    - "local"
+  local_model:
+    model_path: "~/models/qwen2.5-1.5b.gguf"
+    llama_cli_path: "~/llama.cpp/build/bin/llama-cli"
+    threads: 4
+    context_size: 2048
+    temp: 0.7
+
+audio:
+  mic_mode: "auto"              # "auto" (phone built-in mic OR external mic), "internal", "external"
+  temp_audio_file: "input.wav"
+  record_timeout: 7             # Timeout safeguard to prevent mic freezing
+  tts_engine: "termux"          # "termux" (native Android TTS)
+
+server:
+  host: "0.0.0.0"
+  port: 8765                    # WebSocket server port for PC & IoT clients
+  dashboard_port: 8766          # HTTP Mission-Control Web Dashboard port
+  enable_event_bus: true
+  enable_dashboard: true
