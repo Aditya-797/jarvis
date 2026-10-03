@@ -2,6 +2,13 @@
 # Resumable download script for Qwen 2.5 1.5B GGUF
 
 set -e
+if [ -n "$PREFIX" ] && [ -d "$PREFIX" ]; then
+    mkdir -p "$PREFIX/etc"
+    if ! grep -q "8.8.8.8" "$PREFIX/etc/resolv.conf" 2>/dev/null; then
+        echo "nameserver 8.8.8.8" > "$PREFIX/etc/resolv.conf"
+        echo "nameserver 1.1.1.1" >> "$PREFIX/etc/resolv.conf"
+    fi
+fi
 mkdir -p "$HOME/models"
 MODEL_PATH="$HOME/models/qwen2.5-1.5b.gguf"
 

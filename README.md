@@ -20,10 +20,10 @@ Jarvis is designed to be accessible to everyone on Earth:
 
 ## 🚀 1-Line Instant Install
 
-Open **[Termux](https://f-droid.org/en/packages/com.termux/)** on your Android phone and paste this single command:
+Open **[Termux](https://f-droid.org/en/packages/com.termux/)** on your Android phone and paste this single command (includes auto-DNS fix for Android 14/15):
 
 ```bash
-pkg install -y git && git clone https://github.com/Aditya-797/jarvis.git ~/jarvis && cd ~/jarvis && bash install.sh
+mkdir -p $PREFIX/etc && printf "nameserver 8.8.8.8\nnameserver 1.1.1.1\n" > $PREFIX/etc/resolv.conf && pkg install -y git && git clone https://github.com/Aditya-797/jarvis.git ~/jarvis && cd ~/jarvis && bash install.sh
 ```
 
 **The 15-second wizard will:**

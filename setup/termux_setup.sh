@@ -10,6 +10,15 @@ echo "============================================="
 echo "        JARVIS 24/7 SERVER INSTALLER         "
 echo "============================================="
 
+# 0. Self-Healing DNS for Android/Termux
+if [ -n "$PREFIX" ] && [ -d "$PREFIX" ]; then
+    mkdir -p "$PREFIX/etc"
+    if ! grep -q "8.8.8.8" "$PREFIX/etc/resolv.conf" 2>/dev/null; then
+        echo "nameserver 8.8.8.8" > "$PREFIX/etc/resolv.conf"
+        echo "nameserver 1.1.1.1" >> "$PREFIX/etc/resolv.conf"
+    fi
+fi
+
 # 1. Update and upgrade Termux
 echo "[1/5] Updating Termux packages..."
 pkg update -y || true
