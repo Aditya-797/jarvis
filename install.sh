@@ -31,7 +31,11 @@ if command -v pkg &> /dev/null; then
     pkg install -y python nmap termux-api
 fi
 
-# 2. Automatically run npm install
+# 4. Install Python dependencies
+echo "📦 Installing Python dependencies (pyyaml, google-genai, websockets)..."
+pip install --break-system-packages -r requirements.txt 2>/dev/null || pip install -r requirements.txt 2>/dev/null || true
+
+# 5. Automatically run npm install
 if command -v npm &> /dev/null; then
     echo "📦 Running npm install..."
     npm install --silent 2>/dev/null || npm install

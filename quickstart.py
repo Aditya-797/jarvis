@@ -6,7 +6,6 @@ No manual editing required. Prompts for your key and starts Jarvis immediately.
 
 import os
 import sys
-import yaml
 import time
 import subprocess
 
@@ -37,10 +36,13 @@ def check_requirements():
     
     if missing:
         print(f"📦 Installing missing packages: {', '.join(missing)}...")
-        subprocess.run([sys.executable, "-m", "pip", "install"] + missing, check=True)
+        res = subprocess.run([sys.executable, "-m", "pip", "install", "--break-system-packages"] + missing, capture_output=True)
+        if res.returncode != 0:
+            subprocess.run([sys.executable, "-m", "pip", "install"] + missing, check=True)
     print("✅ Core packages ready.")
 
 def configure_keys():
+    import yaml
     print("\n🔑 [2/4] API Key Configuration:")
     
     # Auto-create config.yaml from template if missing
