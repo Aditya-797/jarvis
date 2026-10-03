@@ -19,11 +19,27 @@ if [ -n "$PREFIX" ] && [ -d "$PREFIX" ]; then
     printf "nameserver 8.8.8.8\nnameserver 1.1.1.1\n" > "$PREFIX/etc/resolv.conf"
 fi
 
-# 2. Install prerequisites on Termux (including nmap, python, ffmpeg, termux-api)
+# 2. Heal any broken dpkg states from previous runs
+if command -v dpkg &> /dev/null; then
+    dpkg --configure -a 2>/dev/null || true
+fi
+
+# 3. Install core prerequisites on Termux (python, nmap, termux-api)
 if command -v pkg &> /dev/null; then
-    echo "📦 Installing Termux prerequisites (python, nmap, ffmpeg, termux-api)..."
+    echo "📦 Installing core prerequisites (python, nmap, termux-api)..."
     pkg update -y -qq 2>/dev/null || true
-    pkg install -y -qq python nmap ffmpeg termux-api 2>/dev/null || pkg install -y python nmap ffmpeg termux-api
+    pkg install -y -qq python nmap termux-api 2>/dev/null || pkg install -y python nmap termux-api
+
+    # 4. Handle ffmpeg safely (Termux NDK libplacebo ABI workaround)
+    # If ffmpeg has dynamic linking errors on older NDK runtimes, purge it so dpkg stays healthy.
+    # Jarvis operates natively using AAC/M4A audio even without FFmpeg!
+    if ! ffmpeg -version &>/dev/null; then
+        pkg install -y -qq ffmpeg 2>/dev/null || true
+        if ! ffmpeg -version &>/dev/null; then
+            dpkg --purge --force-all ffmpeg 2>/dev/null || true
+            echo "ℹ️ FFmpeg has an upstream Termux NDK linking issue. Jarvis will use native AAC audio!"
+        fi
+    fi
 fi
 
 # 2. Automatically run npm install

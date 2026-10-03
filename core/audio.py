@@ -46,13 +46,21 @@ class AudioManager:
         except Exception:
             pass
 
-    def _calculate_audio_rms(self, wav_path: str) -> float:
-        """Calculates Root-Mean-Square (energy level) of the recorded audio."""
-        if not os.path.exists(wav_path) or os.path.getsize(wav_path) < 100:
+    def _can_run_ffmpeg(self) -> bool:
+        """Tests if ffmpeg binary exists and runs without dynamic linking errors."""
+        try:
+            res = subprocess.run(["ffmpeg", "-version"], capture_output=True, timeout=2)
+            return res.returncode == 0
+        except Exception:
+            return False
+
+    def _calculate_audio_rms(self, file_path: str) -> float:
+        """Calculates Root-Mean-Square energy (or size heuristic for M4A/AAC)."""
+        if not os.path.exists(file_path) or os.path.getsize(file_path) < 100:
             return 0.0
 
         try:
-            with wave.open(wav_path, "rb") as wf:
+            with wave.open(file_path, "rb") as wf:
                 n_frames = wf.getnframes()
                 if n_frames == 0:
                     return 0.0
@@ -65,7 +73,8 @@ class AudioManager:
                 sum_squares = sum(float(s) * float(s) for s in samples)
                 return math.sqrt(sum_squares / count)
         except Exception:
-            return 250.0
+            # Fallback for AAC/M4A containers: positive filesize confirms voice capture
+            return 200.0 if os.path.getsize(file_path) > 2048 else 0.0
 
     def record(self, duration: int = 5) -> tuple[str | None, str | None]:
         """
@@ -106,21 +115,28 @@ class AudioManager:
             time.sleep(duration + 0.3)
             self.cleanup_mic_locks()
 
-            # 3. Normalize via FFmpeg to standard 16kHz mono PCM WAV
-            if os.path.exists(self.raw_capture_file) and os.path.getsize(self.raw_capture_file) > 1024:
-                ffmpeg_cmd = [
-                    "ffmpeg", "-y",
-                    "-i", self.raw_capture_file,
-                    "-ar", "16000",
-                    "-ac", "1",
-                    "-c:a", "pcm_s16le",
-                    self.audio_file
-                ]
-                subprocess.run(ffmpeg_cmd, capture_output=True, timeout=5)
+            chosen_file = self.raw_capture_file
+
+            # 3. Normalize via FFmpeg to standard 16kHz mono PCM WAV if FFmpeg is functional
+            if self._can_run_ffmpeg() and os.path.exists(self.raw_capture_file) and os.path.getsize(self.raw_capture_file) > 1024:
+                try:
+                    ffmpeg_cmd = [
+                        "ffmpeg", "-y",
+                        "-i", self.raw_capture_file,
+                        "-ar", "16000",
+                        "-ac", "1",
+                        "-c:a", "pcm_s16le",
+                        self.audio_file
+                    ]
+                    res = subprocess.run(ffmpeg_cmd, capture_output=True, timeout=5)
+                    if res.returncode == 0 and os.path.exists(self.audio_file):
+                        chosen_file = self.audio_file
+                except Exception:
+                    pass
 
             # 4. Analyze sound energy
-            if os.path.exists(self.audio_file) and os.path.getsize(self.audio_file) > 1024:
-                rms = self._calculate_audio_rms(self.audio_file)
+            if os.path.exists(chosen_file) and os.path.getsize(chosen_file) > 1024:
+                rms = self._calculate_audio_rms(chosen_file)
                 logger.info(f"Sound Energy (RMS): {round(rms, 1)}")
 
                 # Check if energy is complete silence
@@ -130,7 +146,7 @@ class AudioManager:
                 else:
                     self.consecutive_silence = 0
 
-                return self.audio_file, alert_msg
+                return chosen_file, alert_msg
             else:
                 logger.warning("No audio data captured.")
                 return None, None

@@ -123,10 +123,17 @@ class BrainRouter:
             system_prompt = self._get_system_prompt()
             search_tool = {"google_search": {}}
 
+            # Automatically detect MIME type (WAV, MP4/M4A, AAC)
+            mime_type = "audio/wav"
+            if audio_path.endswith((".m4a", ".mp4")):
+                mime_type = "audio/mp4"
+            elif audio_path.endswith(".aac"):
+                mime_type = "audio/aac"
+
             response = client.models.generate_content(
                 model='gemini-2.0-flash',
                 contents=[
-                    types.Part.from_bytes(data=audio_bytes, mime_type='audio/wav'),
+                    types.Part.from_bytes(data=audio_bytes, mime_type=mime_type),
                     "Listen to the user's speech in this audio clip, execute any necessary tool, and respond conversationally adhering to your system instructions."
                 ],
                 config=types.GenerateContentConfig(
