@@ -10,20 +10,20 @@ echo "============================================="
 echo "   ⚡ JARVIS 1-CLICK INSTANT INSTALLER      "
 echo "============================================="
 
-# 0. Termux & Android DNS Self-Healing (Fixes "Could not resolve host" issue)
+# 0. Suppress interactive apt prompts & clean environment
+export DEBIAN_FRONTEND=noninteractive
+
+# 1. Termux & Android DNS Self-Healing (Fixes "Could not resolve host" issue)
 if [ -n "$PREFIX" ] && [ -d "$PREFIX" ]; then
     mkdir -p "$PREFIX/etc"
-    if ! grep -q "8.8.8.8" "$PREFIX/etc/resolv.conf" 2>/dev/null; then
-        echo "nameserver 8.8.8.8" > "$PREFIX/etc/resolv.conf"
-        echo "nameserver 1.1.1.1" >> "$PREFIX/etc/resolv.conf"
-    fi
+    printf "nameserver 8.8.8.8\nnameserver 1.1.1.1\n" > "$PREFIX/etc/resolv.conf"
 fi
 
-# 1. Install prerequisites on Termux (including nmap, python, ffmpeg, termux-api)
+# 2. Install prerequisites on Termux (including nmap, python, ffmpeg, termux-api)
 if command -v pkg &> /dev/null; then
     echo "📦 Installing Termux prerequisites (python, nmap, ffmpeg, termux-api)..."
-    pkg update -y 2>/dev/null || true
-    pkg install -y python nmap ffmpeg termux-api
+    pkg update -y -qq 2>/dev/null || true
+    pkg install -y -qq python nmap ffmpeg termux-api 2>/dev/null || pkg install -y python nmap ffmpeg termux-api
 fi
 
 # 2. Automatically run npm install
